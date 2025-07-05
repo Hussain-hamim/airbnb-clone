@@ -11,6 +11,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { StatusBar } from 'expo-status-bar';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,11 +56,36 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-        <Stack.Screen name='modal' options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <Stack>
+      <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+      <Stack.Screen
+        name='(modal)/login'
+        options={{
+          title: 'Log in or sign up',
+          headerTitleStyle: { fontFamily: 'mon-sb' },
+          presentation: 'modal',
+          // headerLeft: () => (
+          //   <TouchableOpacity>
+          //     <Ionicons name='close-outline' size={24} />
+          //   </TouchableOpacity>
+          // ),
+        }}
+      />
+      <Stack.Screen
+        name='listing/[id]'
+        options={{
+          headerTitle: '',
+        }}
+      />
+      <Stack.Screen
+        name='(modal)/booking'
+        options={{
+          animation: 'fade',
+          presentation: 'transparentModal',
+        }}
+      />
+    </Stack>
+    // </ThemeProvider>
   );
 }

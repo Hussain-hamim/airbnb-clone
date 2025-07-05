@@ -6,15 +6,9 @@ import { Link } from 'expo-router';
 export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Link style={{ color: 'white' }} href={'/(modal)/login'}>
-        Login
-      </Link>
-      <Link style={{ color: 'white' }} href={'/(modal)/booking'}>
-        Booking
-      </Link>
-      <Link style={{ color: 'white' }} href={'/listing/123'}>
-        list details page
-      </Link>
+      <Link href={'/(modal)/login'}>Login</Link>
+      <Link href={'/(modal)/booking'}>Booking</Link>
+      <Link href={'/listing/123'}>list details page</Link>
 
       <Text style={styles.title}>Tab One</Text>
       <View
