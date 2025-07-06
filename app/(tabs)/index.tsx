@@ -1,20 +1,27 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Link } from 'expo-router';
+import { Link, Stack } from 'expo-router';
+import ExploreHeader from '@/components/ExploreHeader';
+import { useState } from 'react';
+import Listings from '@/components/Listings';
 
 export default function TabOneScreen() {
+  const [category, setCategory] = useState<string | null>(null);
+
+  const onDataChanged = (data: string) => {
+    console.log('Data changed:', data);
+    setCategory(data);
+  };
+
   return (
     <View style={styles.container}>
-      <Link href={'/(modal)/login'}>Login</Link>
-      <Link href={'/(modal)/booking'}>Booking</Link>
-      {/* <Link href={'/listing/123'}>list details page</Link> */}
-
-      <Text style={styles.title}>Tab One</Text>
-      <View
-        style={styles.separator}
-        lightColor='#eee'
-        darkColor='rgba(255,255,255,0.1)'
+      <Stack.Screen
+        options={{
+          header: () => <ExploreHeader onCategoryChanged={onDataChanged} />,
+        }}
       />
+
+      <Listings listings={[]} category={category} />
     </View>
   );
 }
