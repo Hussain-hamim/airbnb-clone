@@ -1,6 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
 import { Link } from 'expo-router';
 
 export default function TabOneScreen() {
@@ -8,7 +7,7 @@ export default function TabOneScreen() {
     <View style={styles.container}>
       <Link href={'/(modal)/login'}>Login</Link>
       <Link href={'/(modal)/booking'}>Booking</Link>
-      <Link href={'/listing/123'}>list details page</Link>
+      {/* <Link href={'/listing/123'}>list details page</Link> */}
 
       <Text style={styles.title}>Tab One</Text>
       <View
