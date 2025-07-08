@@ -19,16 +19,16 @@ import { StatusBar } from 'expo-status-bar';
 
 const categories = [
   {
+    name: 'Trending',
+    icon: 'local-fire-department',
+  },
+  {
     name: 'Tiny homes',
     icon: 'home',
   },
   {
     name: 'Cabins',
     icon: 'house-siding',
-  },
-  {
-    name: 'Trending',
-    icon: 'local-fire-department',
   },
   {
     name: 'Play',

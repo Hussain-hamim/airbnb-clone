@@ -2,11 +2,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Link, Stack } from 'expo-router';
 import ExploreHeader from '@/components/ExploreHeader';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Listings from '@/components/Listings';
+import listingData from '@/assets/data/airbnb-listings.json';
 
 export default function TabOneScreen() {
   const [category, setCategory] = useState<string | null>(null);
+  const items = useMemo(() => listingData as any, []);
 
   const onDataChanged = (data: string) => {
     console.log('Data changed:', data);
@@ -21,7 +23,7 @@ export default function TabOneScreen() {
         }}
       />
 
-      <Listings listings={[]} category={category} />
+      <Listings listings={items} category={category} />
     </View>
   );
 }
