@@ -5,6 +5,8 @@ import ExploreHeader from '@/components/ExploreHeader';
 import { useMemo, useState } from 'react';
 import Listings from '@/components/Listings';
 import listingData from '@/assets/data/airbnb-listings.json';
+import listingDataGeo from '@/assets/data/airbnb-listings.geo.json';
+import ListingMap from '@/components/ListingMap';
 
 export default function TabOneScreen() {
   const [category, setCategory] = useState<string | null>(null);
@@ -25,7 +27,8 @@ export default function TabOneScreen() {
         }}
       />
 
-      <Listings listings={items} category={category} />
+      {/* <Listings listings={items} category={category} /> */}
+      <ListingMap listings={listingDataGeo} />
     </View>
   );
 }
