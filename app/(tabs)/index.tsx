@@ -10,6 +10,8 @@ export default function TabOneScreen() {
   const [category, setCategory] = useState<string | null>(null);
   const items = useMemo(() => listingData as any, []);
 
+  console.log('index count', items.length);
+
   const onDataChanged = (data: string) => {
     console.log('Data changed:', data);
     setCategory(data);

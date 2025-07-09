@@ -7,7 +7,7 @@ const Page = () => {
 
   return (
     <View>
-      <Text style={{ color: 'white' }}>Page {id}</Text>
+      <Text>Page {id}</Text>
     </View>
   );
 };
