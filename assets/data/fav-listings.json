@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1",
+    "name": "Modern Loft in Downtown",
+    "image": "https://a0.muscache.com/im/pictures/102085641/64d657b3_original.jpg?aki_policy=medium",
+    "rating": 4.92,
+    "location": "New York, NY",
+    "price": 120
+  },
+  {
+    "id": "2",
+    "name": "Beachfront Villa with Pool",
+    "image": "https://a0.muscache.com/im/pictures/53a6d65a-992b-481a-b044-68096a7429fc.jpg?aki_policy=medium",
+    "rating": 4.85,
+    "location": "Miami, FL",
+    "price": 250
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "name": "Cozy Mountain Cabin",
+    "image": "https://a0.muscache.com/im/pictures/102085641/64d657b3_original.jpg?aki_policy=medium",
+    "dates": "Jun 10-15, 2023",
+    "status": "Upcoming"
+  },
+  {
+    "id": "2",
+    "name": "Luxury Penthouse",
+    "image": "https://source.unsplash.com/random/300x300?penthouse",
+    "dates": "Apr 5-10, 2023",
+    "status": "Completed"
+  }
+]

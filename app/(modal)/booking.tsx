@@ -186,7 +186,7 @@ const Page = () => {
           </View>
 
           {/* Guests */}
-          <View style={styles.card}>
+          <View style={[styles.card, {}]}>
             {openCard != 2 && (
               <AnimatedTouchableOpacity
                 onPress={() => setOpenCard(2)}

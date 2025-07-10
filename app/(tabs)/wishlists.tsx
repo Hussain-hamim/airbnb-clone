@@ -1,32 +1,93 @@
-import { StyleSheet, Text, View } from 'react-native';
-import listingDataGeo from '@/assets/data/airbnb-listings.geo.json';
-import ListingMap from '@/components/ListingMap';
-import { useMemo, useState } from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
+import listings from '@/assets/data/fav-listings.json';
+import { Link } from 'expo-router';
 
-export default function TabOneScreen() {
-  const [category, setCategory] = useState<string>('Tiny homes');
-  const items = useMemo(() => listingDataGeo as any, []);
+export default function Wishlists() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Wishlists</Text>
+      </View>
 
-  const onDataChanged = (data: string) => {
-    setCategory(data);
-  };
-
-  return <ListingMap listings={items} />;
+      <FlatList
+        data={listings}
+        renderItem={({ item }) => (
+          <Link href={`/listing/${item.id}`} style={styles.listing}>
+            <Image source={{ uri: item.image }} style={styles.image} />
+            <View style={styles.info}>
+              <Text style={styles.name}>{item.name}</Text>
+              <View style={styles.rating}>
+                <Ionicons name='star' size={16} color={Colors.primary} />
+                <Text style={styles.ratingText}>{item.rating}</Text>
+              </View>
+              <Text style={styles.location}>{item.location}</Text>
+              <Text style={styles.price}>${item.price} night</Text>
+            </View>
+          </Link>
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  header: {
+    paddingVertical: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
+    fontFamily: 'mon-sb',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  listing: {
+    marginVertical: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  info: {
+    padding: 12,
+  },
+  name: {
+    fontSize: 18,
+    fontFamily: 'mon-sb',
+    marginBottom: 4,
+  },
+  rating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  ratingText: {
+    marginLeft: 4,
+    fontFamily: 'mon-sb',
+  },
+  location: {
+    color: Colors.grey,
+    fontFamily: 'mon',
+    marginBottom: 4,
+  },
+  price: {
+    fontFamily: 'mon-sb',
   },
 });

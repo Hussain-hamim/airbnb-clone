@@ -1,13 +1,50 @@
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
+import trips from '@/assets/data/trips.json';
+import { Listing } from '@/interfaces/listing';
 
-export default function TabTwoScreen() {
+export default function Trips() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View
-        style={styles.separator}
-        lightColor='#eee'
-        darkColor='rgba(255,255,255,0.1)'
+      <View style={styles.header}>
+        <Text style={styles.title}>Trips</Text>
+      </View>
+
+      <FlatList
+        data={trips}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.trip}>
+            <Image source={{ uri: item.image }} style={styles.image} />
+            <View style={styles.info}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.dates}>{item.dates}</Text>
+              <View style={styles.status}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    {
+                      backgroundColor:
+                        item.status === 'Upcoming'
+                          ? Colors.primary
+                          : Colors.grey,
+                    },
+                  ]}
+                />
+                <Text style={styles.statusText}>{item.status}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     </View>
   );
@@ -16,16 +53,52 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  header: {
+    paddingVertical: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
+    fontFamily: 'mon-sb',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  trip: {
+    marginVertical: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.lightGrey,
+  },
+  image: {
+    width: '100%',
+    height: 180,
+  },
+  info: {
+    padding: 16,
+  },
+  name: {
+    fontSize: 18,
+    fontFamily: 'mon-sb',
+    marginBottom: 8,
+  },
+  dates: {
+    color: Colors.grey,
+    fontFamily: 'mon',
+    marginBottom: 8,
+  },
+  status: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  statusText: {
+    fontFamily: 'mon-sb',
   },
 });

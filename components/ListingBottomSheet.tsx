@@ -22,30 +22,30 @@ const ListingBottomSheet = ({ listings, category }: Props) => {
 
   return (
     <View
-      style={{
-        flex: 1,
-        padding: 24,
-        width: 200,
-        height: 200,
-        // backgroundColor: 'red',
-      }}
+    // style={{
+    //   flex: 1,
+    //   padding: 24,
+    //   width: 200,
+    //   height: 200,
+    //   // backgroundColor: 'red',
+    // }}
     >
-      <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints}>
-        <View style={styles.contentContainer}>
-          <Listings listings={listings} refresh={refresh} category={category} />
-          <View style={styles.absoluteView}>
-            <TouchableOpacity onPress={onShowMap} style={styles.btn}>
-              <Text style={{ fontFamily: 'mon-sb', color: '#fff' }}>Map</Text>
-              <Ionicons
-                name='map'
-                size={20}
-                style={{ marginLeft: 10 }}
-                color={'#fff'}
-              />
-            </TouchableOpacity>
-          </View>
+      {/* <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints}> */}
+      <View style={styles.contentContainer}>
+        <Listings listings={listings} refresh={refresh} category={category} />
+        <View style={styles.absoluteView}>
+          <TouchableOpacity onPress={onShowMap} style={styles.btn}>
+            <Text style={{ fontFamily: 'mon-sb', color: '#fff' }}>Map</Text>
+            <Ionicons
+              name='map'
+              size={20}
+              style={{ marginLeft: 10 }}
+              color={'#fff'}
+            />
+          </TouchableOpacity>
         </View>
-      </BottomSheet>
+      </View>
+      {/* </BottomSheet> */}
     </View>
   );
 };

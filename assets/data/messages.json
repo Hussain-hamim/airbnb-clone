@@ -1,0 +1,16 @@
+[
+  {
+    "id": "1",
+    "hostName": "Sarah M.",
+    "hostImage": "https://a0.muscache.com/im/pictures/bced1392-9538-41df-92d9-f058a7188b0f.jpg?aki_policy=medium",
+    "time": "2h ago",
+    "text": "Hi there! Your booking is confirmed for next weekend..."
+  },
+  {
+    "id": "2",
+    "hostName": "Michael T.",
+    "hostImage": "https://a0.muscache.com/im/pictures/53a6d65a-992b-481a-b044-68096a7429fc.jpg?aki_policy=medium",
+    "time": "1d ago",
+    "text": "Just wanted to check if you need any recommendations..."
+  }
+]
