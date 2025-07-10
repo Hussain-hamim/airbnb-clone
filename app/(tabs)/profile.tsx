@@ -7,6 +7,9 @@ import {
   ScrollView,
   SafeAreaView,
   Animated,
+  Button,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import {
@@ -16,15 +19,88 @@ import {
   Feather,
   MaterialIcons,
 } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Link, Stack, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import { defaultStyles } from '@/constants/Styles';
+import * as ImagePicker from 'expo-image-picker';
+import { FadeIn } from 'react-native-reanimated';
 
 const Profile = () => {
+  const { signOut, isSignedIn } = useAuth();
   const { user } = useUser();
-  const { signOut } = useAuth();
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [email, setEmail] = useState(
+    user?.emailAddresses[0]?.emailAddress || ''
+  );
+  const [edit, setEdit] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!user) return;
+
+    setFirstName(user.firstName || '');
+    setLastName(user.lastName || '');
+    setEmail(user.emailAddresses[0]?.emailAddress || '');
+  }, [user]);
+
+  const onSaveUser = async () => {
+    if (!firstName || !lastName) {
+      Alert.alert('Error', 'Please enter both first and last name');
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      await user?.update({
+        firstName,
+        lastName,
+      });
+      setEdit(false);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Failed to update profile');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const onCaptureImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permissionResult.granted) {
+        Alert.alert(
+          'Permission required',
+          'Please allow access to your photos'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.75,
+        base64: true,
+      });
+
+      if (!result.canceled) {
+        const base64 = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        await user?.setProfileImage({
+          file: base64,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Failed to update profile image');
+    }
+  };
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -37,135 +113,219 @@ const Profile = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.replace('/(modals)/login');
+      router.replace('/(modal)/login');
     } catch (err) {
       console.error('Error signing out:', err);
     }
   };
 
-  if (!user) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text>Loading user data...</Text>
-      </SafeAreaView>
-    );
-  }
-
   const menuItems = [
     { icon: 'account-circle', name: 'Personal info', color: '#FF6B6B' },
     { icon: 'cog', name: 'Account settings', color: '#4ECDC4' },
-    // { icon: 'shield-account', name: 'Login & security', color: '#FFD166' },
     { icon: 'bell', name: 'Notifications', color: '#A78BFA' },
-    // { icon: 'help-circle', name: 'Help Center', color: '#7FDBFF' },
   ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header with gradient */}
-        <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>My Profile</Text>
-            <TouchableOpacity
-              onPress={handleSignOut}
-              style={styles.logoutButton}
-            >
-              <Feather name='log-out' size={20} color='white' />
-              <Text style={styles.logoutText}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-
-        {/* Profile Card */}
-        <Animated.View style={[styles.profileCard, { opacity: fadeAnim }]}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri:
-                  user.imageUrl ||
-                  'https://randomuser.me/api/portraits/women/44.jpg',
-              }}
-              style={styles.avatar}
-            />
-            <View style={styles.verifiedBadge}>
-              <MaterialIcons name='verified' size={20} color='#4CAF50' />
+      {user && (
+        <ScrollView
+          style={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+            <View style={styles.headerContent}>
+              <Text style={styles.title}>My Profile</Text>
+              <TouchableOpacity
+                onPress={handleSignOut}
+                style={styles.logoutButton}
+              >
+                <Feather name='log-out' size={20} color='white' />
+                <Text style={styles.logoutText}>Sign Out</Text>
+              </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
 
-          <Text style={styles.userName}>
-            {user.firstName} {user.lastName}
-          </Text>
-          <Text style={styles.userEmail}>
-            {user.primaryEmailAddress?.emailAddress}
-          </Text>
-
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>24</Text>
-              <Text style={styles.statLabel}>Trips</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>5</Text>
-              <Text style={styles.statLabel}>Reviews</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>3</Text>
-              <Text style={styles.statLabel}>Wishlists</Text>
-            </View>
-          </View>
-        </Animated.View>
-
-        {/* Menu Items */}
-        <Animated.View style={[styles.menuContainer, { opacity: fadeAnim }]}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.menuItem, { backgroundColor: `${item.color}20` }]}
-            >
-              <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
-                <MaterialCommunityIcons
-                  name={item.icon}
-                  size={22}
-                  color='white'
-                />
-              </View>
-              <Text style={styles.menuText}>{item.name}</Text>
-              <MaterialIcons
-                name='keyboard-arrow-right'
-                size={24}
-                color={Colors.grey}
+          {/* Profile Card - Simplified like reference */}
+          <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+            <TouchableOpacity onPress={onCaptureImage}>
+              <Image
+                source={{
+                  uri:
+                    user?.imageUrl ||
+                    'https://randomuser.me/api/portraits/women/44.jpg',
+                }}
+                style={styles.avatar}
               />
             </TouchableOpacity>
-          ))}
-        </Animated.View>
 
-        {/* Become Host Section */}
-        <Animated.View style={[styles.hostCard, { opacity: fadeAnim }]}>
-          <FontAwesome5 name='airbnb' size={32} color='#FF5A5F' />
-          <Text style={styles.hostTitle}>Become a Host</Text>
-          <Text style={styles.hostSubtitle}>
-            Earn extra income and unlock new opportunities by sharing your space
+            {edit ? (
+              <View style={styles.editContainer}>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    placeholder='First Name'
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    style={[defaultStyles.inputField, styles.nameInput]}
+                    autoCapitalize='words'
+                  />
+                  <TextInput
+                    placeholder='Last Name'
+                    value={lastName}
+                    onChangeText={setLastName}
+                    style={[defaultStyles.inputField, styles.nameInput]}
+                    autoCapitalize='words'
+                  />
+                </View>
+                <View style={styles.editButtons}>
+                  <TouchableOpacity
+                    onPress={() => setEdit(false)}
+                    style={styles.cancelButton}
+                  >
+                    <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={onSaveUser}
+                    style={styles.saveButton}
+                    disabled={isUpdating}
+                  >
+                    <Text style={styles.buttonText}>
+                      {isUpdating ? 'Saving...' : 'Save'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.nameContainer}>
+                <Text style={styles.userName}>
+                  {firstName} {lastName}
+                </Text>
+                <TouchableOpacity onPress={() => setEdit(true)}>
+                  <Ionicons
+                    name='create-outline'
+                    size={28}
+                    color={Colors.dark}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <Text style={styles.userEmail}>{email}</Text>
+            <Text style={styles.memberSince}>
+              Member since {user?.createdAt?.toLocaleDateString()}
+            </Text>
+          </Animated.View>
+
+          {/* Menu Items */}
+          <Animated.View style={[styles.menuContainer, { opacity: fadeAnim }]}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.menuItem,
+                  { backgroundColor: `${item.color}20` },
+                ]}
+              >
+                <View
+                  style={[styles.menuIcon, { backgroundColor: item.color }]}
+                >
+                  <MaterialCommunityIcons
+                    name={item.icon}
+                    size={22}
+                    color='white'
+                  />
+                </View>
+                <Text style={styles.menuText}>{item.name}</Text>
+                <MaterialIcons
+                  name='keyboard-arrow-right'
+                  size={24}
+                  color={Colors.grey}
+                />
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+
+          {/* Become Host Section */}
+          <Animated.View style={[styles.hostCard, { opacity: fadeAnim }]}>
+            <FontAwesome5 name='airbnb' size={32} color='#FF5A5F' />
+            <Text style={styles.hostTitle}>Become a Host</Text>
+            <Text style={styles.hostSubtitle}>
+              Earn extra income and unlock new opportunities by sharing your
+              space
+            </Text>
+            <TouchableOpacity style={styles.hostButton}>
+              <Text style={styles.hostButtonText}>Get Started</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </ScrollView>
+      )}
+
+      {!isSignedIn && (
+        <Animated.View
+          style={[styles.loginContainer, { opacity: fadeAnim }]}
+          entering={FadeIn.duration(500)}
+        >
+          <Ionicons
+            name='person-circle-outline'
+            size={100}
+            color={Colors.primary}
+          />
+
+          <Stack.Screen
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+            }}
+          />
+
+          <Text style={styles.loginTitle}>Welcome to My Airbnb Clone</Text>
+          <Text style={styles.loginSubtitle}>
+            Log in to view your profile and bookings
           </Text>
-          <TouchableOpacity style={styles.hostButton}>
-            <Text style={styles.hostButtonText}>Get Started</Text>
-          </TouchableOpacity>
-        </Animated.View>
 
-        {/* App Settings */}
-        <Animated.View style={[styles.settingsCard, { opacity: fadeAnim }]}>
-          <Text style={styles.settingsTitle}>App Settings</Text>
-          <View style={styles.settingItem}>
-            <Ionicons name='moon-outline' size={22} color='#6C63FF' />
-            <Text style={styles.settingText}>Dark Mode</Text>
-            <MaterialIcons name='toggle-on' size={40} color='#6C63FF' />
-          </View>
-          <View style={styles.settingItem}>
-            <Ionicons name='language' size={22} color='#6C63FF' />
-            <Text style={styles.settingText}>Language</Text>
-            <Text style={styles.settingValue}>English</Text>
+          <View style={{ gap: 10 }}>
+            <Link href={'/(modal)/login'} asChild>
+              <TouchableOpacity style={[defaultStyles.btn, styles.loginButton]}>
+                <Text
+                  style={[
+                    defaultStyles.btnText,
+                    {
+                      color: 'white',
+                      backgroundColor: Colors.primary,
+                      paddingHorizontal: 20,
+                      padding: 3,
+                      borderRadius: 5,
+                    },
+                  ]}
+                >
+                  Log In
+                </Text>
+              </TouchableOpacity>
+            </Link>
+
+            <Link href={'/(modal)/login'} asChild>
+              <TouchableOpacity
+                style={[defaultStyles.btn, styles.registerButton]}
+              >
+                <Text
+                  style={[
+                    defaultStyles.btnText,
+                    {
+                      color: 'white',
+                      backgroundColor: Colors.primary,
+                      paddingHorizontal: 20,
+                      padding: 3,
+                      borderRadius: 5,
+                    },
+                  ]}
+                >
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </View>
         </Animated.View>
-      </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -174,25 +334,17 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F8F9FA',
-    paddingBottom: 60,
   },
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
   header: {
-    height: 180,
+    padding: 24,
+    paddingTop: 60,
     backgroundColor: '#FF5A5F',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    paddingHorizontal: 24,
-    paddingTop: 50,
-    marginBottom: -60,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerContent: {
     flexDirection: 'row',
@@ -200,7 +352,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: 'mon-sb',
     color: 'white',
   },
@@ -208,8 +360,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    padding: 8,
     borderRadius: 20,
   },
   logoutText: {
@@ -218,81 +369,86 @@ const styles = StyleSheet.create({
     fontFamily: 'mon-sb',
     fontSize: 14,
   },
-  profileCard: {
+  card: {
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 24,
-    marginHorizontal: 24,
-    marginBottom: 20,
+    margin: 16,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
-    zIndex: 1,
-  },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 15,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    borderWidth: 3,
-    borderColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
+    marginBottom: 16,
   },
-  verifiedBadge: {
-    position: 'absolute',
-    bottom: 5,
-    right: 5,
-    backgroundColor: 'white',
-    borderRadius: 15,
-    padding: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   userName: {
     fontSize: 22,
     fontFamily: 'mon-sb',
     color: Colors.dark,
-    marginBottom: 5,
+    marginRight: 10,
   },
   userEmail: {
     fontSize: 16,
     fontFamily: 'mon',
     color: Colors.grey,
-    marginBottom: 20,
+    marginBottom: 4,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 15,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 20,
-    fontFamily: 'mon-sb',
-    color: Colors.dark,
-  },
-  statLabel: {
+  memberSince: {
     fontSize: 14,
     fontFamily: 'mon',
     color: Colors.grey,
   },
+  editContainer: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  nameInput: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  saveButton: {
+    backgroundColor: Colors.primary,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 8,
+  },
+  cancelButton: {
+    backgroundColor: Colors.grey,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontFamily: 'mon-sb',
+  },
   menuContainer: {
-    marginHorizontal: 24,
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
   menuItem: {
     flexDirection: 'row',
@@ -317,10 +473,10 @@ const styles = StyleSheet.create({
   },
   hostCard: {
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 24,
-    marginHorizontal: 24,
-    marginBottom: 20,
+    margin: 16,
+    paddingBottom: 110,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -353,43 +509,41 @@ const styles = StyleSheet.create({
     fontFamily: 'mon-sb',
     color: 'white',
   },
-  settingsCard: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 24,
-    marginHorizontal: 24,
-    marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  settingsTitle: {
-    fontSize: 18,
-    fontFamily: 'mon-sb',
-    color: Colors.dark,
-    marginBottom: 20,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGrey,
-  },
-  settingText: {
+  loginContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  loginImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 24,
+  },
+  loginTitle: {
+    fontSize: 24,
+    fontFamily: 'mon-b',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  loginSubtitle: {
     fontSize: 16,
     fontFamily: 'mon',
-    color: Colors.dark,
-    marginLeft: 15,
-  },
-  settingValue: {
-    fontSize: 14,
-    fontFamily: 'mon',
     color: Colors.grey,
-    marginRight: 5,
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  loginButtons: {
+    width: '100%',
+    gap: 16,
+  },
+  loginButton: {
+    backgroundColor: Colors.grey,
+  },
+  registerButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: Colors.grey,
   },
 });
 

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { defaultStyles } from '@/constants/Styles';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { useEffect, useRef, useState } from 'react';
 import { Listing } from '@/interfaces/listing';
@@ -24,26 +24,15 @@ const CARD_HEIGHT = 340;
 
 interface Props {
   listings: any[];
-  refresh: number;
   category: string;
 }
-
-const Listings = ({ listings: items, refresh, category }: Props) => {
+const Listings = ({ listings: items, category }: Props) => {
   const listRef = useRef<FlatList>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isFavorite, setIsFavorite] = useState<{ [key: string]: boolean }>({});
+  const router = useRouter();
 
   const filteredItems = items.filter((item) => item.medium_url);
-
-  useEffect(() => {
-    if (refresh) {
-      scrollListTop();
-    }
-  }, [refresh]);
-
-  const scrollListTop = () => {
-    listRef.current?.scrollToOffset({ offset: 0, animated: true });
-  };
 
   useEffect(() => {
     setLoading(true);
@@ -217,7 +206,10 @@ const Listings = ({ listings: items, refresh, category }: Props) => {
             <Text style={styles.resultsText}>
               {filteredItems.length} stays in {category}
             </Text>
-            <TouchableOpacity style={styles.mapButton}>
+            <TouchableOpacity
+              style={styles.mapButton}
+              onPress={() => router.push('/map/map')}
+            >
               <Ionicons name='map-outline' size={18} color={Colors.dark} />
               <Text style={styles.mapButtonText}>Map</Text>
             </TouchableOpacity>
@@ -236,14 +228,14 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingBottom: 80,
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   mapButton: {
     flexDirection: 'row',

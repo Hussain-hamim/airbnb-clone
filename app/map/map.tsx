@@ -3,7 +3,7 @@ import listingDataGeo from '@/assets/data/airbnb-listings.geo.json';
 import ListingMap from '@/components/ListingMap';
 import { useMemo, useState } from 'react';
 
-export default function TabOneScreen() {
+export default function Map() {
   const [category, setCategory] = useState<string>('Tiny homes');
   const items = useMemo(() => listingDataGeo as any, []);
 

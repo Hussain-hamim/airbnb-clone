@@ -15,6 +15,8 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import HeaderModalText from '@/components/HeaderModalText';
 
 const CLERK_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -74,7 +76,9 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={CLERK_KEY} tokenCache={tokenCache}>
-      <RootLayoutNav />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <RootLayoutNav />
+      </GestureHandlerRootView>
     </ClerkProvider>
   );
 }
@@ -99,6 +103,8 @@ function RootLayoutNav() {
           title: 'Log in or sign up',
           headerTitleStyle: { fontFamily: 'mon-sb' },
           presentation: 'modal',
+          animation: 'fade_from_bottom',
+          headerShadowVisible: false,
           // headerLeft: () => (
           //   <TouchableOpacity>
           //     <Ionicons name='close-outline' size={24} />
@@ -112,10 +118,20 @@ function RootLayoutNav() {
         options={{ headerTitle: '', headerTransparent: true }}
       />
       <Stack.Screen
+        name='map/map'
+        options={{
+          headerTitle: 'Explore places on map',
+          // headerTransparent: true,
+          animation: 'fade_from_bottom',
+        }}
+      />
+      <Stack.Screen
         name='(modal)/booking'
         options={{
-          animation: 'fade',
           presentation: 'transparentModal',
+          animation: 'fade',
+          headerTransparent: true,
+          headerTitle: () => <HeaderModalText />,
         }}
       />
     </Stack>
